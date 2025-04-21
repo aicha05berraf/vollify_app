@@ -1,12 +1,4 @@
 {
     "sqltools.useNodeRuntime": true,
-    "sqltools.connections": [
-        {
-            "previewLimit": 50,
-            "driver": "SQLite",
-            "name": "VollifyDB",
-            "database": "database_helper.DB",
-            "group": "Local"
-        }
-    ]
+    "sqltools.connections": []
 }
