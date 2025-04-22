@@ -2,21 +2,16 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
-  factory DatabaseHelper() => _instance;
-  DatabaseHelper._internal();
-
   static Database? _database;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB("vollify.db");
-    return _database!;
+    return await initDB();
   }
 
-  Future<Database> _initDB(String fileName) async {
+  Future<Database> initDB() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, fileName);
+    final path = join(dbPath, 'vollify.db');
 
     return await openDatabase(
       path,
@@ -31,19 +26,22 @@ class DatabaseHelper {
             experience TEXT
           )
         ''');
-        print("Database and volunteers table created!");
       },
     );
   }
 
-  // Optional: Insert sample volunteer to test
   Future<void> insertSampleVolunteer() async {
     final db = await database;
-    await db.insert('volunteers', {
-      'name': 'Aïcha',
-      'email': 'aicha@example.com',
-      'skills': 'Flutter, Firebase',
-      'experience': '2 years',
-    });
+
+    // Avoid duplicates
+    final existing = await db.query('volunteers', where: 'email = ?', whereArgs: ['aicha@example.com']);
+    if (existing.isEmpty) {
+      await db.insert('volunteers', {
+        'name': 'Aïcha',
+        'email': 'aicha@example.com',
+        'skills': 'Flutter, Firebase',
+        'experience': '2 years',
+      });
+    }
   }
 }
