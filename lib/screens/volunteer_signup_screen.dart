@@ -26,6 +26,11 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
       appBar: AppBar(
         title: const Text('Volunteer Sign Up'),
         backgroundColor: const Color(0xFF20331B),
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Set text color to white
+          fontSize: 20, // Optional: Adjust font size if needed
+          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),

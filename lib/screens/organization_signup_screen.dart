@@ -26,6 +26,11 @@ class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
       appBar: AppBar(
         title: const Text('Organization Sign Up'),
         backgroundColor: const Color(0xFF20331B),
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Set text color to white
+          fontSize: 20, // Optional: Adjust font size if needed
+          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -154,8 +159,7 @@ class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const OrganizationHomeScreen(),
+                          builder: (context) => const OrganizationHomeScreen(),
                         ),
                       );
                     }

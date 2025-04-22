@@ -23,7 +23,10 @@ class _ManageVolunteersScreenState extends State<ManageVolunteersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Volunteers'),
+        title: const Text(
+          'Manage Volunteers',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppColors.primaryDark,
       ),
       body: ListView.separated(
@@ -101,6 +104,11 @@ class _ManageVolunteersScreenState extends State<ManageVolunteersScreen> {
                                   index,
                                   ApplicationStatus.rejected,
                                 ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor:
+                                  AppColors
+                                      .primaryDark, // Set text color to primary dark
+                            ),
                             child: const Text('Reject'),
                           ),
                         ),
@@ -115,6 +123,8 @@ class _ManageVolunteersScreenState extends State<ManageVolunteersScreen> {
                                 ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
+                              foregroundColor:
+                                  Colors.white, // Set text color to white
                             ),
                             child: const Text('Accept'),
                           ),

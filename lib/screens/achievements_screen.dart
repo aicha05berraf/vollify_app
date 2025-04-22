@@ -10,6 +10,11 @@ class AchievementsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Achievements'),
         backgroundColor: AppColors.primaryDark,
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Set text color to white
+          fontSize: 20, // Optional: Adjust font size if needed
+          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

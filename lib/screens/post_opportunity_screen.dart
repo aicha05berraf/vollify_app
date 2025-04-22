@@ -23,7 +23,10 @@ class _PostOpportunityScreenState extends State<PostOpportunityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Post New Opportunity'),
+        title: const Text(
+          'Post New Opportunity',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppColors.primaryDark,
       ),
       body: SingleChildScrollView(
@@ -88,6 +91,7 @@ class _PostOpportunityScreenState extends State<PostOpportunityScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 50),
+                  foregroundColor: Colors.white, // Set text color to white
                 ),
                 child: const Text('Post Opportunity'),
               ),

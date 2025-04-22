@@ -8,7 +8,10 @@ class OrganizationReviewsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Organization Reviews'),
+        title: const Text(
+          'Organization Reviews',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppColors.primaryDark,
       ),
       body: Padding(

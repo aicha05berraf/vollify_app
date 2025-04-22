@@ -72,6 +72,11 @@ class _OpportunitySearchScreenState extends State<OpportunitySearchScreen> {
       appBar: AppBar(
         title: const Text('Search Opportunities'),
         backgroundColor: AppColors.primaryDark,
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Set text color to white
+          fontSize: 20, // Optional: Adjust font size if needed
+          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+        ),
       ),
       body: Column(
         children: [
@@ -144,7 +149,14 @@ class _OpportunityCard extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () => _showDetails(context),
-                  child: const Text('Details'),
+                  child: const Text(
+                    'Details',
+                    style: TextStyle(
+                      color:
+                          AppColors
+                              .primaryDark, // Set text color to primaryDark
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
@@ -152,7 +164,12 @@ class _OpportunityCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                   ),
-                  child: const Text('Apply'),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ), // Set text color to white
+                  ),
                 ),
               ],
             ),

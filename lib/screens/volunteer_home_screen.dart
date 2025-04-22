@@ -14,9 +14,14 @@ class VolunteerHomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Volunteer Dashboard'),
         backgroundColor: AppColors.primaryDark,
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Set text color to white
+          fontSize: 20, // Optional: Adjust font size if needed
+          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
