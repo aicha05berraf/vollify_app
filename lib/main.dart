@@ -65,6 +65,7 @@ class VolunteerApp extends StatelessWidget {
     // ignore: deprecated_member_use
     final int r = color.red, g = color.green, b = color.blue;
 
+
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
     }
@@ -80,6 +81,6 @@ class VolunteerApp extends StatelessWidget {
     }
 
     // ignore: deprecated_member_use
-    return MaterialColor(color.value, swatch);
+      return MaterialColor(color.value, swatch);
+    }
   }
-}
