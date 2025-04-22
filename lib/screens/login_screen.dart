@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vollify_app/screens/volunteer_profile_screen.dart';
+import 'package:vollify_app/screens/forgot_password_screen.dart'; // Import the ForgotPasswordScreen
 import 'package:vollify_app/utils/constants.dart';
+import 'package:vollify_app/screens/volunteer_home_screen.dart';
+import 'package:vollify_app/screens/organization_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +18,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  String userType = ''; // Placeholder for user type
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeUserType();
+  }
+
+  Future<void> _initializeUserType() async {
+    userType = await AuthService.getUserType(); // Mock API call
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +126,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
-                    // Add forgot password navigation
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordScreen(),
+                      ),
+                    );
                   },
                   child: const Text('Forgot Password?'),
                 ),
@@ -133,16 +153,34 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = false);
 
-    // Navigate to appropriate profile based on user type
-    // (In real app, this would come from authentication)
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) =>
-                const VolunteerProfileScreen(), // Or OrganizationProfileScreen
-      ),
-    );
+    // Mock user type (In a real app, this would come from authentication logic)
+    final String userType = 'volunteer'; // Change to 'organization' for testing
+
+    // Navigate to the appropriate home screen based on user type
+    if (userType == 'volunteer') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const VolunteerHomeScreen(),
+        ),
+      );
+    } else if (userType == 'organization') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const OrganizationHomeScreen(),
+        ),
+      );
+    }
+  }
+
+  void someFunction() async {
+    await someAsyncOperation();
+  }
+
+  Future<void> someAsyncOperation() async {
+    // Add your async operation logic here
+    await Future.delayed(const Duration(seconds: 1));
   }
 
   @override
@@ -151,4 +189,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+}
+
+class AuthService {
+  static getUserType() {}
 }

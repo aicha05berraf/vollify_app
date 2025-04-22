@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'organization_profile_screen.dart';
+import 'organization_home_screen.dart'; // Import the OrganizationHomeScreen
 
-class OrganizationSignupScreen extends StatefulWidget {
-  const OrganizationSignupScreen({super.key});
+class OrganizationSignUpScreen extends StatefulWidget {
+  const OrganizationSignUpScreen({Key? key}) : super(key: key);
 
   @override
-  _OrganizationSignupScreenState createState() =>
-      _OrganizationSignupScreenState();
+  _OrganizationSignUpScreenState createState() =>
+      _OrganizationSignUpScreenState();
 }
 
-class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
+class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
   final _socialMediaController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +36,12 @@ class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Organization Name',
-                  prefixIcon: Icon(Icons.business),
+                  labelText: 'Name',
+                  prefixIcon: Icon(Icons.person),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter organization name';
+                    return 'Please enter your name';
                   }
                   return null;
                 },
@@ -54,6 +57,9 @@ class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
                   return null;
                 },
               ),
@@ -61,12 +67,12 @@ class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(
-                  labelText: 'Contact Number',
+                  labelText: 'Phone',
                   prefixIcon: Icon(Icons.phone),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter contact number';
+                    return 'Please enter your phone number';
                   }
                   return null;
                 },
@@ -80,7 +86,7 @@ class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter location';
+                    return 'Please enter your location';
                   }
                   return null;
                 },
@@ -89,12 +95,48 @@ class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
               TextFormField(
                 controller: _socialMediaController,
                 decoration: const InputDecoration(
-                  labelText: 'Social Media Accounts',
+                  labelText: 'Social Media',
                   prefixIcon: Icon(Icons.link),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter social media accounts';
+                    return 'Please enter your social media link';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters long';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Password',
+                  prefixIcon: Icon(Icons.lock),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match';
                   }
                   return null;
                 },
@@ -109,12 +151,11 @@ class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
                   ),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // In a real app, you would save to a backend here
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder:
-                              (context) => const OrganizationProfileScreen(),
+                          builder: (context) =>
+                              const OrganizationHomeScreen(),
                         ),
                       );
                     }
@@ -139,6 +180,8 @@ class _OrganizationSignupScreenState extends State<OrganizationSignupScreen> {
     _phoneController.dispose();
     _locationController.dispose();
     _socialMediaController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 }

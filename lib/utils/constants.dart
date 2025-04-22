@@ -7,19 +7,27 @@ class AppColors {
   static const textPrimary = Color(0xFF333333);
   static const textSecondary = Color(0xFF666666);
 
-  static var primaryLight;
-
-  static var accent;
+  static const primaryLight = Color(0xFFAED581); // أخضر فاتح
+  static const accent = Color(0xFFFFC107); // أصفر برتقالي
 }
 
 class AppTextStyles {
-  static var headline = TextStyle(
+  static final myTextStyle = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
   );
 
-  static var subtitle = TextStyle(fontSize: 16, color: AppColors.textSecondary);
+  static final headline = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textPrimary,
+  );
+
+  static final subtitle = TextStyle(
+    fontSize: 16,
+    color: AppColors.textSecondary,
+  );
 }
 
 class AppStrings {

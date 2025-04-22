@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'volunteer_profile_screen.dart';
+import 'volunteer_home_screen.dart'; // Import the VolunteerHomeScreen
 
 class VolunteerSignupScreen extends StatefulWidget {
   const VolunteerSignupScreen({super.key});
@@ -16,6 +17,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   final _phoneController = TextEditingController();
   final _skillsController = TextEditingController();
   final _experienceController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +116,42 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters long';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Password',
+                  prefixIcon: Icon(Icons.lock),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
@@ -127,7 +166,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const VolunteerProfileScreen(),
+                          builder: (context) => const VolunteerHomeScreen(),
                         ),
                       );
                     }
@@ -153,6 +192,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
     _phoneController.dispose();
     _skillsController.dispose();
     _experienceController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 }

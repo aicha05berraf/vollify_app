@@ -41,7 +41,7 @@ class VolunteerApp extends StatelessWidget {
         '/splash': (context) => const SplashScreen(),
         '/userType': (context) => const UserTypeScreen(),
         '/volunteerSignup': (context) => const VolunteerSignupScreen(),
-        '/organizationSignup': (context) => OrganizationSignupScreen(),
+        '/organizationSignup': (context) => const OrganizationSignUpScreen(),
         '/volunteerProfile': (context) => VolunteerProfileScreen(),
         '/organizationProfile': (context) => OrganizationProfileScreen(),
         '/volunteerHome': (context) => VolunteerHomeScreen(),
@@ -62,4 +62,4 @@ class VolunteerApp extends StatelessWidget {
   createMaterialColor(Color color) {}
 }
 
-// Your existing createMaterialColor function...
+

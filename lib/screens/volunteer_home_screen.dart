@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vollify_app/screens/achievements_screen.dart';
 import 'package:vollify_app/screens/notifications_screen.dart';
 import 'package:vollify_app/screens/opportunity_search_screen.dart';
+import 'package:vollify_app/screens/volunteer_profile_screen.dart';
 import 'package:vollify_app/utils/constants.dart';
 
 class VolunteerHomeScreen extends StatelessWidget {
@@ -13,6 +14,19 @@ class VolunteerHomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Volunteer Dashboard'),
         backgroundColor: AppColors.primaryDark,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VolunteerProfileScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -83,7 +97,7 @@ class VolunteerHomeScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              const Icon(Icons.arrow_forward, color: Colors.grey),
+              const Icon(Icons.arrow_forward, color: AppColors.textSecondary),
             ],
           ),
         ),

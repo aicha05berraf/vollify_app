@@ -49,7 +49,7 @@ class UserTypeScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) => const OrganizationSignupScreen(),
+                              (context) => const OrganizationSignUpScreen(),
                         ),
                       ),
                 ),

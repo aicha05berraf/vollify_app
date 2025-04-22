@@ -39,6 +39,7 @@ class AchievementsScreen extends StatelessWidget {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color:
+          // ignore: deprecated_member_use
           unlocked ? AppColors.primaryLight.withOpacity(0.2) : Colors.grey[200],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

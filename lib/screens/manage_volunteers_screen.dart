@@ -81,6 +81,7 @@ class _ManageVolunteersScreenState extends State<ManageVolunteersScreen> {
                             .map(
                               (skill) => Chip(
                                 label: Text(skill),
+                                // ignore: deprecated_member_use
                                 backgroundColor: AppColors.accent.withOpacity(
                                   0.2,
                                 ),

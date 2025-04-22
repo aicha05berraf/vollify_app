@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vollify_app/screens/manage_volunteers_screen.dart';
 import 'package:vollify_app/screens/organization_reviews_screen.dart';
 import 'package:vollify_app/screens/post_opportunity_screen.dart';
+import 'package:vollify_app/screens/organization_profile_screen.dart';
 import 'package:vollify_app/utils/constants.dart';
 
 class OrganizationHomeScreen extends StatelessWidget {
@@ -13,6 +14,19 @@ class OrganizationHomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Organization Dashboard'),
         backgroundColor: AppColors.primaryDark,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OrganizationProfileScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

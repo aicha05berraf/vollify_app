@@ -133,6 +133,7 @@ class _OpportunityCard extends StatelessWidget {
                   opportunity.skillsRequired.map((skill) {
                     return Chip(
                       label: Text(skill),
+                      // ignore: deprecated_member_use
                       backgroundColor: AppColors.primaryLight.withOpacity(0.2),
                     );
                   }).toList(),
