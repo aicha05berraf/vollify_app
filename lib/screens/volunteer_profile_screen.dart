@@ -98,6 +98,35 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
     }
   }
 
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/userType', // Navigate to the user type screen
+                  (route) => false, // Remove all previous routes
+                );
+              },
+                child: const Text('Yes'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildViewMode() {
     return Column(
       children: [
@@ -219,6 +248,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                 setState(() => _isEditing = !_isEditing);
               }
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.red), // Set icon color to red
+            onPressed: _showLogoutDialog,
           ),
         ],
       ),
