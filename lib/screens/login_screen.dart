@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:vollify_app/screens/volunteer_profile_screen.dart';
-import 'package:vollify_app/screens/forgot_password_screen.dart'; // Import the ForgotPasswordScreen
-import 'package:vollify_app/utils/constants.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vollify_app/screens/volunteer_home_screen.dart';
 import 'package:vollify_app/screens/organization_home_screen.dart';
+import 'package:vollify_app/screens/forgot_password_screen.dart';
+import 'package:vollify_app/services/api_service.dart';
+import 'package:vollify_app/utils/constants.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,20 +19,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  String _selectedRole = 'volunteer'; // Default role
+
+  final ApiService _apiService = ApiService();
+
   bool _isLoading = false;
   bool _obscurePassword = true;
-  String userType = ''; // Placeholder for user type
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeUserType();
-  }
-
-  Future<void> _initializeUserType() async {
-    userType = await AuthService.getUserType(); // Mock API call
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 40),
                 Text(
-                  'Welcome Back',
+                  'Welcome Back!',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -109,9 +104,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedRole,
+                  decoration: const InputDecoration(
+                    labelText: 'Role',
+                    border: OutlineInputBorder(),
+                  ),
+                  items:
+                      ['volunteer', 'organization'].map((role) {
+                        return DropdownMenuItem(
+                          value: role,
+                          child: Text(role.capitalize()),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedRole = value!;
+                    });
+                  },
+                ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
+                  onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -129,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ForgotPasswordScreen(),
+                        builder: (context) => ForgotPasswordScreen(),
                       ),
                     );
                   },
@@ -143,44 +158,64 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _login() async {
+  void _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    // Mock login delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() => _isLoading = false);
-
-    // Mock user type (In a real app, this would come from authentication logic)
-    final String userType = 'volunteer'; // Change to 'organization' for testing
-
-    // Navigate to the appropriate home screen based on user type
-    if (userType == 'volunteer') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const VolunteerHomeScreen(),
-        ),
+    try {
+      final response = await _apiService.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        role: _selectedRole,
       );
-    } else if (userType == 'organization') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const OrganizationHomeScreen(),
-        ),
-      );
+
+      setState(() => _isLoading = false);
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', responseData['userId'].toString());
+        await prefs.setString('userType', responseData['userType']);
+        await prefs.setString('token', responseData['token']);
+
+        if (responseData['userType'] == 'volunteer') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const VolunteerHomeScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const OrganizationHomeScreen()),
+          );
+        }
+      } else {
+        final error = jsonDecode(response.body);
+        _showError(error['message'] ?? 'Login failed');
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showError('An error occurred: $e');
     }
   }
 
-  void someFunction() async {
-    await someAsyncOperation();
-  }
-
-  Future<void> someAsyncOperation() async {
-    // Add your async operation logic here
-    await Future.delayed(const Duration(seconds: 1));
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -191,6 +226,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class AuthService {
-  static getUserType() {}
+extension StringExtensions on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1)}";
+  }
 }

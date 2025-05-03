@@ -1,4 +1,19 @@
 {
     "sqltools.useNodeRuntime": true,
-    "sqltools.connections": []
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "VollifyBD",
+            "username": "root",
+            "group": "vollify_app",
+            "database": "vollify_app"
+        }
+    ]
 }

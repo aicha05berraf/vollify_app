@@ -14,12 +14,9 @@ import 'package:vollify_app/screens/organization_signup_screen.dart';
 import 'package:vollify_app/screens/volunteer_home_screen.dart';
 import 'package:vollify_app/screens/organization_home_screen.dart';
 import 'package:vollify_app/screens/volunteer_profile_screen.dart';
-import 'package:vollify_app/database_helper.db';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final dbHelper = DatabaseHelper();
-  await dbHelper.insertSampleVolunteer(); // Creates DB and adds 1 row
   runApp(const VolunteerApp());
 }
 
@@ -48,7 +45,11 @@ class VolunteerApp extends StatelessWidget {
         '/organizationHome': (context) => OrganizationHomeScreen(),
         '/login': (context) => LoginScreen(),
         '/opportunitySearch': (context) => OpportunitySearchScreen(),
-        '/notifications': (context) => NotificationsScreen(),
+        '/notifications': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as String;
+          return NotificationsScreen(userId: args);
+        },
+
         '/achievements': (context) => AchievementsScreen(),
         '/postOpportunity': (context) => PostOpportunityScreen(),
         '/manageVolunteers': (context) => ManageVolunteersScreen(),

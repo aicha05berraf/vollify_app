@@ -1,8 +1,77 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:vollify_app/utils/constants.dart';
+import 'package:vollify_app/services/api_service.dart';
 
-class OrganizationReviewsScreen extends StatelessWidget {
+class OrganizationReviewsScreen extends StatefulWidget {
   const OrganizationReviewsScreen({super.key});
+
+  @override
+  State<OrganizationReviewsScreen> createState() =>
+      _OrganizationReviewsScreenState();
+}
+
+class _OrganizationReviewsScreenState extends State<OrganizationReviewsScreen> {
+  final ApiService _apiService = ApiService();
+  List<dynamic> _reviews = [];
+  final String _organizationId = '123'; // Example organization ID
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReviews();
+  }
+
+  void _fetchReviews() async {
+    try {
+      final response = await _apiService.getReviews(int.parse(_organizationId));
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _reviews = jsonDecode(response.body);
+        });
+      } else {
+        final responseData = jsonDecode(response.body);
+        _showError(responseData['message'] ?? 'Failed to fetch reviews.');
+      }
+    } catch (e) {
+      _showError('An error occurred: $e');
+    }
+  }
+
+  void _submitReview(String reviewText, int rating) async {
+    if (reviewText.isEmpty || rating <= 0) {
+      _showError('Please provide a valid review and rating.');
+      return;
+    }
+
+    try {
+      final response = await _apiService.postReview(
+        reviewerId: 5,
+        reviewedOrgId: int.parse(_organizationId),
+        rating: rating,
+        comment: reviewText,
+      );
+
+      if (response.statusCode == 201) {
+        _fetchReviews(); // Refresh the reviews list
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Review submitted successfully!')),
+        );
+      } else {
+        final responseData = jsonDecode(response.body);
+        _showError(responseData['message'] ?? 'Failed to submit review.');
+      }
+    } catch (e) {
+      _showError('An error occurred: $e');
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +89,32 @@ class OrganizationReviewsScreen extends StatelessWidget {
           children: [
             const _ReviewSummaryCard(),
             const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Write your review',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (reviewText) {
+                // Example: Submit a review with a rating of 5
+                _submitReview(reviewText, 5);
+              },
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: ListView.separated(
                 itemCount: _reviews.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
                   final review = _reviews[index];
-                  return _ReviewCard(review: review);
+                  return _ReviewCard(
+                    review: Review(
+                      volunteerName: review['volunteerName'],
+                      opportunity: review['opportunity'],
+                      rating: review['rating'],
+                      comment: review['comment'],
+                      date: review['date'],
+                    ),
+                  );
                 },
               ),
             ),
@@ -147,14 +235,3 @@ class Review {
     required this.date,
   });
 }
-
-final List<Review> _reviews = [
-  Review(
-    volunteerName: 'Sarah Johnson',
-    opportunity: 'Community Cleanup',
-    rating: 5,
-    comment: 'Great organization with meaningful opportunities!',
-    date: '2 weeks ago',
-  ),
-  // Add more reviews...
-];

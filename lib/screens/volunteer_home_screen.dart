@@ -127,7 +127,10 @@ class VolunteerHomeScreen extends StatelessWidget {
   void _navigateToNotifications(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+      MaterialPageRoute(
+        builder:
+            (context) => const NotificationsScreen(userId: 'widget.userId'),
+      ),
     );
   }
 }

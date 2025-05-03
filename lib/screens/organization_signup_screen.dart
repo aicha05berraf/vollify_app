@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert'; // Import for jsonDecode
 import 'organization_profile_screen.dart';
 import 'organization_home_screen.dart'; // Import the OrganizationHomeScreen
+import 'package:vollify_app/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import the ApiService
 
 class OrganizationSignUpScreen extends StatefulWidget {
   const OrganizationSignUpScreen({Key? key}) : super(key: key);
@@ -19,6 +22,100 @@ class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
   final _socialMediaController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final ApiService _apiService = ApiService();
+  // Removed unused _organizationNameController
+  bool _isLoading = false; // Loading indicator
+
+  void _handleOrganizationSignup() async {
+    if (!_formKey.currentState!.validate()) {
+      return; // Stop if the form is invalid
+    }
+
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+
+    try {
+      // Call the organizationSignup method from ApiService
+      final response = await _apiService.organizationSignup(
+        _nameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+        _phoneController.text.trim(),
+        _locationController.text.trim(),
+        _socialMediaController.text.trim(),
+      );
+
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        final token = responseData['token'];
+        final userId = responseData['userId'];
+        final userType = responseData['userType'];
+
+        // Save user data in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        await prefs.setString('userId', userId.toString());
+        await prefs.setString('userType', userType);
+
+        // Navigate to the Organization Home Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OrganizationHomeScreen(),
+          ),
+        );
+      } else {
+        // Handle API errors
+        final error = jsonDecode(response.body);
+        _showError(error['message'] ?? 'Signup failed');
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
+      _showError('An error occurred: $e');
+    }
+  }
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // ignore: unused_element
+  void _showSuccess(String message) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Success'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,20 +251,14 @@ class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4E653D),
                   ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const OrganizationHomeScreen(),
-                        ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
+                  onPressed: _isLoading ? null : _handleOrganizationSignup,
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                            'Sign Up',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                 ),
               ),
             ],

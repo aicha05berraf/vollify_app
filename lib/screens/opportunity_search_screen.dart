@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:vollify_app/models/opportunity_model.dart'; // Add this import
 import 'package:vollify_app/utils/constants.dart';
+import 'package:vollify_app/services/api_service.dart';
 
 class OpportunitySearchScreen extends StatefulWidget {
   const OpportunitySearchScreen({super.key});
@@ -12,13 +14,14 @@ class OpportunitySearchScreen extends StatefulWidget {
 
 class _OpportunitySearchScreenState extends State<OpportunitySearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Opportunity> _opportunities = [];
-  List<Opportunity> _filteredOpportunities = [];
+  final ApiService _apiService = ApiService();
+  List<dynamic> _opportunities = [];
+  List<dynamic> _filteredOpportunities = [];
 
   @override
   void initState() {
     super.initState();
-    _loadOpportunities();
+    _fetchOpportunities();
     _searchController.addListener(_filterOpportunities);
   }
 
@@ -28,27 +31,22 @@ class _OpportunitySearchScreenState extends State<OpportunitySearchScreen> {
     super.dispose();
   }
 
-  void _loadOpportunities() {
-    // Replace with your actual data loading
-    setState(() {
-      _opportunities = [
-        Opportunity(
-          title: 'Community Cleanup',
-          orgName: 'Green Earth',
-          location: 'Central Park',
-          description: 'Help clean the park',
-          skillsRequired: ['Teamwork', 'Physical'],
-        ),
-        Opportunity(
-          title: 'Food Distribution',
-          orgName: 'Food for All',
-          location: 'Downtown Shelter',
-          description: 'Help serve meals',
-          skillsRequired: ['Communication'],
-        ),
-      ];
-      _filteredOpportunities = List.from(_opportunities);
-    });
+  void _fetchOpportunities() async {
+    try {
+      final response = await _apiService.getAllOpportunities();
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _opportunities = jsonDecode(response.body);
+          _filteredOpportunities = List.from(_opportunities);
+        });
+      } else {
+        final responseData = jsonDecode(response.body);
+        _showError(responseData['message'] ?? 'Failed to fetch opportunities.');
+      }
+    } catch (e) {
+      _showError('An error occurred: $e');
+    }
   }
 
   void _filterOpportunities() {
@@ -56,14 +54,20 @@ class _OpportunitySearchScreenState extends State<OpportunitySearchScreen> {
     setState(() {
       _filteredOpportunities =
           _opportunities.where((opp) {
-            return opp.title.toLowerCase().contains(query) ||
-                opp.orgName.toLowerCase().contains(query) ||
-                opp.location.toLowerCase().contains(query) ||
-                opp.skillsRequired.any(
+            return opp['title'].toLowerCase().contains(query) ||
+                opp['orgName'].toLowerCase().contains(query) ||
+                opp['location'].toLowerCase().contains(query) ||
+                (opp['skillsRequired'] as List<dynamic>).any(
                   (skill) => skill.toLowerCase().contains(query),
                 );
           }).toList();
     });
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -98,134 +102,15 @@ class _OpportunitySearchScreenState extends State<OpportunitySearchScreen> {
               itemCount: _filteredOpportunities.length,
               itemBuilder: (context, index) {
                 final opportunity = _filteredOpportunities[index];
-                return _OpportunityCard(opportunity: opportunity);
+                return ListTile(
+                  title: Text(opportunity['title']),
+                  subtitle: Text(opportunity['location']),
+                );
               },
             ),
           ),
         ],
       ),
     );
-  }
-}
-
-class _OpportunityCard extends StatelessWidget {
-  final Opportunity opportunity;
-
-  const _OpportunityCard({required this.opportunity});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              opportunity.title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('Organization: ${opportunity.orgName}'),
-            Text('Location: ${opportunity.location}'),
-            const SizedBox(height: 8),
-            Text(opportunity.description),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children:
-                  opportunity.skillsRequired.map((skill) {
-                    return Chip(
-                      label: Text(skill),
-                      // ignore: deprecated_member_use
-                      backgroundColor: AppColors.primaryLight.withOpacity(0.2),
-                    );
-                  }).toList(),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => _showDetails(context),
-                  child: const Text(
-                    'Details',
-                    style: TextStyle(
-                      color:
-                          AppColors
-                              .primaryDark, // Set text color to primaryDark
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () => _apply(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                  ),
-                  child: const Text(
-                    'Apply',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ), // Set text color to white
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDetails(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(opportunity.title),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Organization: ${opportunity.orgName}'),
-                  Text('Location: ${opportunity.location}'),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Description:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(opportunity.description),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Required Skills:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        opportunity.skillsRequired
-                            .map((skill) => Text('• $skill'))
-                            .toList(),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  void _apply(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Applied to ${opportunity.title}')));
   }
 }

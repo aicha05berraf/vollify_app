@@ -7,6 +7,9 @@ import 'package:vollify_app/models/user_model.dart';
 import 'package:vollify_app/utils/constants.dart';
 import 'package:vollify_app/widgets/profile_info_card.dart';
 import 'package:vollify_app/widgets/clickable_info_card.dart';
+import 'dart:convert';
+import 'package:vollify_app/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrganizationProfileScreen extends StatefulWidget {
   const OrganizationProfileScreen({Key? key}) : super(key: key);
@@ -69,25 +72,79 @@ class _OrganizationProfileScreenState extends State<OrganizationProfileScreen> {
     }
   }
 
-  void _saveChanges() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-        _organization = Organization(
-          id: _organization.id,
-          name: _nameController.text,
-          email: _emailController.text,
-          phone: _phoneController.text,
-          location: _locationController.text,
-          socialMedia: _socialMediaController.text.split('\n'),
-        );
-        _isEditing = false;
-        _isLoading = false;
-      });
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
+  Future<void> _saveChanges() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final organizationId = prefs.getInt(
+        'userId',
+      ); // Ensure this is stored at login
+
+      if (organizationId == null) {
+        _showError('User ID not found.');
+        return;
+      }
+
+      final updatedData = {
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+        'location': _locationController.text,
+        'social_media':
+            _socialMediaController.text
+                .split('\n')
+                .map((s) => s.trim())
+                .toList(),
+      };
+
+      if (_imageFile != null) {
+        final bytes = await _imageFile!.readAsBytes();
+        updatedData['image'] = base64Encode(bytes); // Convert image to Base64
+      }
+
+      final response = await ApiService().updateOrganizationProfile(
+        organizationId,
+        updatedData,
+        id: organizationId,
+        data: updatedData,
       );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+
+        setState(() {
+          _organization = Organization(
+            id: _organization.id,
+            name: updatedData['name'] as String,
+            email: updatedData['email'] as String,
+            phone: updatedData['phone'] as String,
+            location: updatedData['location'] as String,
+            socialMedia: List<String>.from(updatedData['social_media'] as List),
+            imageUrl:
+                _organization
+                    .imageUrl, // Keep current image URL or update if needed
+          );
+          _isEditing = false;
+        });
+      } else {
+        final error = jsonDecode(response.body);
+        _showError(error['message'] ?? 'Failed to update profile.');
+      }
+    } catch (e) {
+      _showError('Error: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 

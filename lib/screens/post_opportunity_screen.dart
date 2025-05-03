@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vollify_app/utils/constants.dart';
+import 'package:vollify_app/services/api_service.dart';
+import 'dart:convert';
 
 class PostOpportunityScreen extends StatefulWidget {
   const PostOpportunityScreen({super.key});
@@ -18,6 +20,8 @@ class _PostOpportunityScreenState extends State<PostOpportunityScreen> {
   final TextEditingController _skillsController = TextEditingController();
   final TextEditingController _contactEmailController = TextEditingController();
   final TextEditingController _contactPhoneController = TextEditingController();
+  final ApiService _apiService = ApiService();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -87,13 +91,20 @@ class _PostOpportunityScreenState extends State<PostOpportunityScreen> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _submitOpportunity,
+                onPressed: _handlePostOpportunity,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   minimumSize: const Size(double.infinity, 50),
                   foregroundColor: Colors.white, // Set text color to white
                 ),
-                child: const Text('Post Opportunity'),
+                child:
+                    _isLoading
+                        ? const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        )
+                        : const Text('Post Opportunity'),
               ),
             ],
           ),
@@ -102,13 +113,57 @@ class _PostOpportunityScreenState extends State<PostOpportunityScreen> {
     );
   }
 
-  void _submitOpportunity() {
-    if (_formKey.currentState!.validate()) {
-      // Handle opportunity submission
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Opportunity posted successfully!')),
-      );
-      Navigator.pop(context);
+  void _handlePostOpportunity() async {
+    if (!_formKey.currentState!.validate()) {
+      return; // Stop if the form is invalid
     }
+
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+
+    try {
+      // Prepare the data to send to the API
+      final opportunityData = {
+        'title': _titleController.text.trim(),
+        'description': _descriptionController.text.trim(),
+        'location': _locationController.text.trim(),
+        'volunteersNeeded': int.tryParse(_volunteersNeededController.text) ?? 0,
+        'skillsRequired':
+            _skillsController.text.split(',').map((s) => s.trim()).toList(),
+        'contactEmail': _contactEmailController.text.trim(),
+        'contactPhone': _contactPhoneController.text.trim(),
+      };
+
+      // Call the postOpportunity method from ApiService
+      final response = await _apiService.createOpportunity(
+        opportunityData: opportunityData,
+      );
+
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Opportunity posted successfully!')),
+        );
+        Navigator.pop(context); // Go back to the previous screen
+      } else {
+        final responseData = jsonDecode(response.body);
+        _showError(responseData['message'] ?? 'Failed to post opportunity.');
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
+      _showError('An error occurred: $e');
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

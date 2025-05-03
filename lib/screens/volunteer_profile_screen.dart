@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:vollify_app/models/user_model.dart';
 import 'package:vollify_app/widgets/profile_image_editor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vollify_app/services/api_service.dart'; // if not already
 
 class VolunteerProfileScreen extends StatefulWidget {
   const VolunteerProfileScreen({super.key});
@@ -30,17 +33,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _volunteer = Volunteer(
-      id: '1',
-      name: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      phone: '+1 234 567 890',
-      skills: ['Teaching', 'First Aid', 'Cooking'],
-      experience: '5 years volunteering',
-    );
-
-    _initializeControllers();
+    _initializeControllers(); // set empty controllers first
+    _fetchVolunteerProfile(); // fetch from API
   }
 
   void _initializeControllers() {
@@ -71,30 +65,70 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _saveChanges() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
+  Future<void> _saveChanges() async {
+    if (!_formKey.currentState!.validate()) return;
 
-        _volunteer = Volunteer(
-          id: _volunteer.id,
-          name: _firstNameController.text,
-          lastName: _lastNameController.text,
-          email: _emailController.text,
-          phone: _phoneController.text,
-          skills:
-              _skillsController.text.split(',').map((s) => s.trim()).toList(),
-          experience: _experienceController.text,
-          imageUrl: _imageFile != null ? _imageFile!.path : _volunteer.imageUrl,
-        );
+    setState(() => _isLoading = true);
 
-        _isEditing = false;
-        _isLoading = false;
-      });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final volunteerId = prefs.getInt('userId');
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
+      if (volunteerId == null) {
+        _showError('User ID not found.');
+        return;
+      }
+
+      String? base64Image;
+      if (_imageFile != null) {
+        List<int> imageBytes = await _imageFile!.readAsBytes();
+        base64Image = base64Encode(imageBytes);
+      }
+
+      final updatedData = {
+        'name': _firstNameController.text,
+        'last_name': _lastNameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+        'skills':
+            _skillsController.text.split(',').map((s) => s.trim()).toList(),
+        'experience': _experienceController.text,
+        'image': base64Image,
+      };
+
+      final response = await ApiService().updateVolunteerProfile(
+        int.parse(_volunteer.id),
+        updatedData,
       );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _volunteer = Volunteer(
+            id: _volunteer.id,
+            name: updatedData['name'] as String,
+            lastName: updatedData['last_name'] as String,
+            email: updatedData['email'] as String,
+            phone: updatedData['phone'] as String,
+            skills: List<String>.from(updatedData['skills'] as List),
+            experience: updatedData['experience'] as String,
+            imageUrl:
+                _volunteer
+                    .imageUrl, // Keep current imageUrl or update from response
+          );
+          _isEditing = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+      } else {
+        final error = jsonDecode(response.body);
+        _showError(error['message'] ?? 'Failed to update profile.');
+      }
+    } catch (e) {
+      _showError('Error: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -118,13 +152,61 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
                   (route) => false, // Remove all previous routes
                 );
               },
-                child: const Text('Yes'),
-              ),
+              child: const Text('Yes'),
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _fetchVolunteerProfile() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final volunteerId = prefs.getInt(
+        'userId',
+      ); // Ensure this is stored at login
+
+      if (volunteerId == null) {
+        _showError('User ID not found.');
+        return;
+      }
+
+      final response = await ApiService().getVolunteerProfile(volunteerId);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          _volunteer = Volunteer(
+            id: data['id'].toString(),
+            name: data['name'] ?? '',
+            lastName: data['last_name'] ?? '',
+            email: data['email'] ?? '',
+            phone: data['phone'] ?? '',
+            skills: List<String>.from(data['skills'] ?? []),
+            experience: data['experience'] ?? '',
+            imageUrl: data['image_url'],
+          );
+
+          _firstNameController.text = _volunteer.name;
+          _lastNameController.text = _volunteer.lastName;
+          _emailController.text = _volunteer.email;
+          _phoneController.text = _volunteer.phone;
+          _skillsController.text = _volunteer.skills.join(', ');
+          _experienceController.text = _volunteer.experience;
+        });
+      } else {
+        final error = jsonDecode(response.body);
+        _showError(error['message'] ?? 'Failed to load profile.');
+      }
+    } catch (e) {
+      _showError('Error fetching profile: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   Widget _buildViewMode() {
@@ -250,7 +332,10 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red), // Set icon color to red
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.red,
+            ), // Set icon color to red
             onPressed: _showLogoutDialog,
           ),
         ],
