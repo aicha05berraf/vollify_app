@@ -23,7 +23,6 @@ class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final ApiService _apiService = ApiService();
-  // Removed unused _organizationNameController
   bool _isLoading = false; // Loading indicator
 
   void _handleOrganizationSignup() async {
@@ -99,34 +98,18 @@ class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
     );
   }
 
-  // ignore: unused_element
-  void _showSuccess(String message) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Success'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Organization Sign Up'),
         backgroundColor: const Color(0xFF20331B),
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Set text color to white
-          fontSize: 20, // Optional: Adjust font size if needed
-          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
       body: SingleChildScrollView(
@@ -135,6 +118,15 @@ class _OrganizationSignUpScreenState extends State<OrganizationSignUpScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // ✅ أضفنا الصورة هنا
+              SizedBox(
+                height: 180,
+                child: Image.asset(
+                  'assets/icon/organization_signup.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(

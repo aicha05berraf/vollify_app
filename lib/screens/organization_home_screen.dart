@@ -15,9 +15,9 @@ class OrganizationHomeScreen extends StatelessWidget {
         title: const Text('Organization Dashboard'),
         backgroundColor: AppColors.primaryDark,
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Set text color to white
-          fontSize: 20, // Optional: Adjust font size if needed
-          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
         actions: [
           IconButton(
@@ -33,36 +33,60 @@ class OrganizationHomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildActionCard(
-              context,
-              AppStrings.orgPostOpportunities,
-              Icons.post_add,
-              () => _navigateToPostOpportunity(context),
-              color: AppColors.primary,
-            ),
-            const SizedBox(height: 20),
-            _buildActionCard(
-              context,
-              AppStrings.orgManageVolunteers,
-              Icons.people,
-              () => _navigateToManageVolunteers(context),
-              color: AppColors.accent,
-            ),
-            const SizedBox(height: 20),
-            _buildActionCard(
-              context,
-              AppStrings.orgReviews,
-              Icons.star,
-              () => _navigateToReviews(context),
-              color: AppColors.primaryLight,
-            ),
-          ],
-        ),
+      body: Container(
+  decoration: const BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Color.fromARGB(255, 25, 68, 26), // أخضر غامق من الأعلى
+        Colors.white,                    // بداية الأبيض
+        Colors.white,                    // منتصف أبيض واسع
+        Color.fromARGB(255, 25, 68, 26), // أخضر غامق من الأسفل
+      ],
+      stops: [
+        0.0,  // بداية التدرج العلوي
+        0.2,  // بداية الأبيض
+        0.8,  // نهاية الأبيض
+        1.0,  // نهاية التدرج السفلي
+      ],
+    ),
+  ),
+  child: Center(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildActionCard(
+            context,
+            'Post Opportunities',
+            Icons.post_add,
+            () => _navigateToPostOpportunity(context),
+            color: AppColors.primary,
+          ),
+          const SizedBox(height: 20),
+          _buildActionCard(
+            context,
+            'Manage Volunteers',
+            Icons.people,
+            () => _navigateToManageVolunteers(context),
+            color: AppColors.accent,
+          ),
+          const SizedBox(height: 20),
+          _buildActionCard(
+            context,
+            'View Reviews',
+            Icons.star,
+            () => _navigateToReviews(context),
+            color: AppColors.primaryLight,
+          ),
+        ],
       ),
+    ),
+  ),
+),
+
     );
   }
 
@@ -74,13 +98,13 @@ class OrganizationHomeScreen extends StatelessWidget {
     required Color color,
   }) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Row(
             children: [
               Container(
@@ -90,7 +114,7 @@ class OrganizationHomeScreen extends StatelessWidget {
                   color: color.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: color),
+                child: Icon(icon, color: color, size: 28),
               ),
               const SizedBox(width: 16),
               Text(

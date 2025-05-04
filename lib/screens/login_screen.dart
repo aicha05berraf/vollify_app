@@ -8,6 +8,17 @@ import 'package:vollify_app/screens/forgot_password_screen.dart';
 import 'package:vollify_app/services/api_service.dart';
 import 'package:vollify_app/utils/constants.dart';
 
+void main() {
+  runApp(MaterialApp(
+    initialRoute: '/login',
+    routes: {
+      '/login': (context) => const LoginScreen(),
+      '/volunteerHome': (context) => const VolunteerHomeScreen(),
+      '/organizationHome': (context) => const OrganizationHomeScreen(),
+    },
+  ));
+}
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -29,37 +40,54 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text(
+          'Login',
+          style: TextStyle(color: Colors.white), // White title text
+        ),
+        backgroundColor: const Color(0xFF20331B), // Dark green background
+        centerTitle: false, // Align the title to the left
+      ),
+      backgroundColor: Colors.white,
+      body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-                Text(
+                // Login Image
+                Container(
+                  height: 180,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/icon/login.png'),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Welcome Back Text
+                const Text(
                   'Welcome Back!',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primaryDark,
+                    color: Color(0xFF20331B),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Login to continue',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+
                 const SizedBox(height: 40),
+
+                // Email TextField
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
                     labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                    prefixIcon: Icon(Icons.email),
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -73,12 +101,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+
+                const SizedBox(height: 20),
+
+                // Password TextField
                 TextFormField(
                   controller: _passwordController,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    prefixIcon: const Icon(Icons.lock),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -93,7 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                   ),
-                  obscureText: _obscurePassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
@@ -104,41 +135,56 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+
+                const SizedBox(height: 30),
+
+                // Role Dropdown
                 DropdownButtonFormField<String>(
                   value: _selectedRole,
                   decoration: const InputDecoration(
                     labelText: 'Role',
                     border: OutlineInputBorder(),
                   ),
-                  items:
-                      ['volunteer', 'organization'].map((role) {
-                        return DropdownMenuItem(
-                          value: role,
-                          child: Text(role.capitalize()),
-                        );
-                      }).toList(),
+                  items: ['volunteer', 'organization'].map((role) {
+                    return DropdownMenuItem(
+                      value: role,
+                      child: Text(role.capitalize()),
+                    );
+                  }).toList(),
                   onChanged: (value) {
                     setState(() {
                       _selectedRole = value!;
                     });
                   },
                 ),
+
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+
+                // Login Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4E653D),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    onPressed: _isLoading ? null : _handleLogin,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Login',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                   ),
-                  child:
-                      _isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text('Login', style: TextStyle(fontSize: 16)),
                 ),
+
                 const SizedBox(height: 16),
+
+                // Forgot Password
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -149,6 +195,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                   child: const Text('Forgot Password?'),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Already have an account? Login
+                TextButton(
+                  onPressed: () {
+                    final String userType = 'volunteer'; // Replace with actual logic
+
+                    if (userType == 'volunteer') {
+                      Navigator.of(context).pushReplacementNamed('/volunteerHome');
+                    } else if (userType == 'organization') {
+                      Navigator.of(context).pushReplacementNamed('/organizationHome');
+                    }
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Already have an account? ',
+                      style: const TextStyle(color: Colors.grey),
+                      children: [
+                        TextSpan(
+                          text: 'Login',
+                          style: TextStyle(
+                            color: const Color(0xFF1A4D2E),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -164,6 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Replace with actual API call for login
       final response = await _apiService.login(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -204,17 +281,16 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showError(String message) {
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Error'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
+        ],
+      ),
     );
   }
 

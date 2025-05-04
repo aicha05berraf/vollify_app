@@ -20,7 +20,10 @@ dependencies:
   web_socket_channel: ^2.4.5
   provider: ^6.1.5
   email_validator: ^2.1.17
- 
+  path: ^1.8.3
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +38,10 @@ flutter_icons:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/login.png
+    - assets/icon/forgot_password.png
+    - assets/icon/volunteer_signup.png
+    - assets/icon/organization_signup.png
+    - assets/lang/en.json
+    - assets/lang/fr.json

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert'; // Import for jsonDecode
-import 'volunteer_profile_screen.dart';
-import 'volunteer_home_screen.dart'; // Import the VolunteerHomeScreen
+import 'dart:convert';
 import 'package:vollify_app/services/api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import the ApiService
+import 'package:shared_preferences/shared_preferences.dart';
+import 'volunteer_home_screen.dart';
 
 class VolunteerSignupScreen extends StatefulWidget {
   const VolunteerSignupScreen({super.key});
@@ -23,19 +22,16 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final ApiService _apiService = ApiService();
-  bool _isLoading = false; // Loading indicator
+  bool _isLoading = false;
 
   void _handleVolunteerSignup() async {
-    if (!_formKey.currentState!.validate()) {
-      return; // Stop if the form is invalid
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _isLoading = true;
     });
 
     try {
-      // Call the volunteerSignup method from ApiService
       final response = await _apiService.volunteerSignup(
         username: '${_firstNameController.text} ${_lastNameController.text}',
         email: _emailController.text,
@@ -46,7 +42,7 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
       );
 
       setState(() {
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -55,25 +51,22 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
         final userId = responseData['userId'];
         final userType = responseData['userType'];
 
-        // Save user data in SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         await prefs.setString('userId', userId.toString());
         await prefs.setString('userType', userType);
 
-        // Navigate to the Volunteer Home Screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const VolunteerHomeScreen()),
         );
       } else {
-        // Handle API errors
         final error = jsonDecode(response.body);
         _showError(error['message'] ?? 'Signup failed');
       }
     } catch (e) {
       setState(() {
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
       _showError('An error occurred: $e');
     }
@@ -82,48 +75,30 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   void _showError(String message) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Error'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
           ),
-    );
-  }
-
-  // ignore: unused_element
-  void _showSuccess(String message) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Success'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Volunteer Sign Up'),
         backgroundColor: const Color(0xFF20331B),
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Set text color to white
-          fontSize: 20, // Optional: Adjust font size if needed
-          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
       body: SingleChildScrollView(
@@ -132,125 +107,29 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(
-                controller: _firstNameController,
-                decoration: const InputDecoration(
-                  labelText: 'First Name',
-                  prefixIcon: Icon(Icons.person),
+              SizedBox(
+                height: 180,
+                child: Image.asset(
+                  'assets/icon/volunteer_signup.png',
+                  fit: BoxFit.contain,
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your first name';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _lastNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Last Name',
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your last name';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_firstNameController, 'First Name', Icons.person),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_lastNameController, 'Last Name', Icons.person),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  prefixIcon: Icon(Icons.phone),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your phone number';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_emailController, 'Email', Icons.email),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _skillsController,
-                decoration: const InputDecoration(
-                  labelText: 'Skills (comma separated)',
-                  prefixIcon: Icon(Icons.build),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your skills';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_phoneController, 'Phone Number', Icons.phone),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _experienceController,
-                decoration: const InputDecoration(
-                  labelText: 'Experience',
-                  prefixIcon: Icon(Icons.work),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your experience';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_skillsController, 'Skills (comma separated)', Icons.build),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters long';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_experienceController, 'Experience', Icons.work),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm Password',
-                  prefixIcon: Icon(Icons.lock),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
+              _buildPasswordField(_passwordController, 'Password'),
+              const SizedBox(height: 20),
+              _buildConfirmPasswordField(),
               const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
@@ -260,19 +139,61 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     backgroundColor: const Color(0xFF4E653D),
                   ),
                   onPressed: _isLoading ? null : _handleVolunteerSignup,
-                  child:
-                      _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                            'Sign Up',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Sign Up',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+      ),
+      validator: (value) => value == null || value.isEmpty ? 'Please enter your $label' : null,
+    );
+  }
+
+  Widget _buildPasswordField(TextEditingController controller, String label) {
+    return TextFormField(
+      controller: controller,
+      obscureText: true,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: const Icon(Icons.lock),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) return 'Please enter a password';
+        if (value.length < 6) return 'Password must be at least 6 characters long';
+        return null;
+      },
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return TextFormField(
+      controller: _confirmPasswordController,
+      obscureText: true,
+      decoration: const InputDecoration(
+        labelText: 'Confirm Password',
+        prefixIcon: Icon(Icons.lock),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) return 'Please confirm your password';
+        if (value != _passwordController.text) return 'Passwords do not match';
+        return null;
+      },
     );
   }
 

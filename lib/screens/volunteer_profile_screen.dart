@@ -5,7 +5,8 @@ import 'dart:io';
 import 'package:vollify_app/models/user_model.dart';
 import 'package:vollify_app/widgets/profile_image_editor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vollify_app/services/api_service.dart'; // if not already
+import 'package:vollify_app/services/api_service.dart'; // If not already
+import 'settings_screen.dart'; // Import the SettingsScreen
 
 class VolunteerProfileScreen extends StatefulWidget {
   const VolunteerProfileScreen({super.key});
@@ -60,9 +61,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _saveChanges() async {
@@ -233,6 +232,7 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
         _buildInfoCard('Experience', _volunteer.experience, Icons.work),
         _buildInfoCard('Email', _volunteer.email, Icons.email),
         _buildInfoCard('Phone', _volunteer.phone, Icons.phone),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -306,10 +306,9 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
               ),
-              child:
-                  _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Save Changes'),
+              child: _isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text('Save Changes'),
             ),
           ],
         ),
@@ -321,37 +320,42 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: const Text(
+          'My Profile',
+          style: TextStyle(color: Colors.white), // White title text
+        ),
+        backgroundColor: const Color(0xFF20331B), // Dark green background
+        centerTitle: false, // Align the title to the left
         actions: [
+          // Edit Icon in the AppBar
           IconButton(
-            icon: Icon(_isEditing ? Icons.close : Icons.edit),
+            icon: const Icon(Icons.edit, color: Colors.white),
             onPressed: () {
-              if (!_isLoading) {
-                setState(() => _isEditing = !_isEditing);
-              }
+              setState(() {
+                _isEditing = true; // Enable edit mode
+              });
             },
           ),
+          // Settings Icon in the AppBar
           IconButton(
-            icon: const Icon(
-              Icons.logout,
-              color: Colors.red,
-            ), // Set icon color to red
-            onPressed: _showLogoutDialog,
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),
       body: _isEditing ? _buildEditMode() : _buildViewMode(),
+      floatingActionButton: _isEditing
+          ? FloatingActionButton(
+              onPressed: _showLogoutDialog, // Logout action
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.exit_to_app),
+            )
+          : null,
     );
-  }
-
-  @override
-  void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _skillsController.dispose();
-    _experienceController.dispose();
-    super.dispose();
   }
 }

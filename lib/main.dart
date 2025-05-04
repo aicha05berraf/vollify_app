@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:vollify_app/l10n/app_localizations.dart';
+import 'package:vollify_app/providers/theme_provider.dart';
 import 'package:vollify_app/screens/achievements_screen.dart';
 import 'package:vollify_app/screens/manage_volunteers_screen.dart';
 import 'package:vollify_app/screens/notifications_screen.dart';
@@ -13,25 +17,68 @@ import 'package:vollify_app/screens/volunteer_signup_screen.dart';
 import 'package:vollify_app/screens/organization_signup_screen.dart';
 import 'package:vollify_app/screens/volunteer_home_screen.dart';
 import 'package:vollify_app/screens/organization_home_screen.dart';
-import 'package:vollify_app/screens/volunteer_profile_screen.dart';
+import 'package:vollify_app/screens/volunteer_profile_screen.dart' as volunteer_profile;
+import 'package:vollify_app/screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const VolunteerApp());
+  runApp(const MyApp());
 }
 
-class VolunteerApp extends StatelessWidget {
-  const VolunteerApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  static void setLocale(BuildContext context, Locale newLocale) {
+    _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    state?.setLocale(newLocale);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale? _locale;
+
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Volunteer Connect',
-      theme: ThemeData(
-        primarySwatch: createMaterialColor(const Color(0xFF20331B)),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      // Initial route
+    return ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            title: 'Volunteer Connect',
+            theme: ThemeData(
+              primarySwatch: createMaterialColor(const Color(0xFF20331B)),
+              brightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+            ),
+            locale: _locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', ''),
+              Locale('fr', ''),
+            ],
+            localeResolutionCallback: (locale, supportedLocales) {
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale?.languageCode) {
+                  return supportedLocale;
+                }
+              }
+              return supportedLocales.first;
+            },
+            // Initial route
       home: const SplashScreen(),
       // Named routes for all screens
       routes: {
@@ -57,6 +104,12 @@ class VolunteerApp extends StatelessWidget {
       },
 
       debugShowCheckedModeBanner: false,
+          );
+        },
+      ),
+
+
+
     );
   }
 

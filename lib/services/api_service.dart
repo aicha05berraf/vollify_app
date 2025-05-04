@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static const String baseUrl =
-      'http://192.168.100.2:3000/api'; // Android emulator
+      'http://192.168.249.189:3000/api'; // Android emulator
   // For real devices: 'http://<YOUR_LOCAL_IP>:3000/api'
 
   // ========================
