@@ -7,18 +7,11 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 // ========================
 // MIDDLEWARE
 // ========================
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 const authenticate = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -36,9 +29,9 @@ const authenticate = (req, res, next) => {
 // ========================
 // AUTHENTICATION ROUTES
 // ========================
-console.log('📥 Received data:', req.body);
+
 router.post('/volunteer/signup', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const { username, email, password } = req.body;
 
     if (!username?.trim() || !email?.trim() || !password?.trim()) {
@@ -64,9 +57,9 @@ router.post('/volunteer/signup', async (req, res) => {
   }
 });
 
-console.log('📥 Received data:', req.body);
+
 router.post('/organization/signup', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const { name, email, password } = req.body;
 
     if (!name?.trim() || !email?.trim() || !password?.trim()) {
@@ -92,22 +85,25 @@ router.post('/organization/signup', async (req, res) => {
   }
 });
 
-console.log('📥 Received data:', req.body);
-console.log('👤 Login attempt:', email, role);
-console.log('🔍 Found user:', users);
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password, role } = req.body;
-    if (!email || !password || !role) {
+    console.log('📥 Received data:', req.body);
+    console.log('👤 Login attempt:', email, password, role);
+
+    if (!email?.trim() || !password?.trim() || !role?.trim()) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const userRows = await db.query('SELECT * FROM users WHERE email = ? AND role = ?', [email, role]);
+    const userRows = await db.query('SELECT * FROM users WHERE email = ? AND role = ? AND password = ?', [email, role, password]);
     if (userRows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     const user = userRows[0];
+    console.log('🔍 Found user:', user);
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid password' });
@@ -121,12 +117,13 @@ router.post('/login', async (req, res) => {
   }
 });
 
+
 // ========================
 // PROFILE ROUTES
 // ========================
-console.log('📥 Received data:', req.body);
+
 router.get('/volunteers/:id', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const volunteerRows = await db.query(`
       SELECT users.id, users.name, users.email, users.role, 
              volunteers.phone, volunteers.skills, volunteers.experience,
@@ -146,9 +143,9 @@ router.get('/volunteers/:id', async (req, res) => {
   }
 });
 
-console.log('📥 Received data:', req.body);
+
 router.get('/organizations/:id', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const orgRows = await db.query(`
       SELECT users.id, users.name, users.email, users.role, 
              organizations.phone, organizations.address, 
@@ -171,9 +168,9 @@ router.get('/organizations/:id', async (req, res) => {
 // ========================
 // OPPORTUNITY ROUTES
 // ========================
-console.log('📥 Received data:', req.body);
+
 router.post('/opportunities', authenticate, async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const { organization_id, title, description, date, location } = req.body;
     if (!organization_id || !title || !description) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -194,9 +191,9 @@ router.post('/opportunities', authenticate, async (req, res) => {
   }
 });
 
-console.log('📥 Received data:', req.body);
+
 router.get('/opportunities', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const rows = await db.query('SELECT * FROM opportunities');
     res.json(rows);
   } catch (err) {
@@ -208,9 +205,9 @@ router.get('/opportunities', async (req, res) => {
 // ========================
 // SAVED/APPLICATIONS ROUTES
 // ========================
-console.log('📥 Received data:', req.body);
+
 router.post('/saved', authenticate, async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const { volunteer_id, opportunity_id } = req.body;
     if (!volunteer_id || !opportunity_id) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -229,7 +226,7 @@ router.post('/saved', authenticate, async (req, res) => {
 });
 
 router.get('/saved/:volunteerId', authenticate, async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const rows = await db.query(`
       SELECT s.*, o.title, o.description, o.date, o.location
       FROM saved_opportunities s
@@ -249,10 +246,19 @@ router.get('/saved/:volunteerId', authenticate, async (req, res) => {
 // ========================
 // PASSWORD RESET ROUTES
 // ========================
-console.log('📥 Received data:', req.body);
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 router.post('/forgot-password', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     console.log('📥 Received data:', req.body);
+    const transporter = require('../config/email');
     const { email, role } = req.body;
 
     if (!email?.trim() || !role?.trim()) {
@@ -284,7 +290,7 @@ router.post('/forgot-password', async (req, res) => {
       html: `
         <p>Hi ${users[0].name},</p>
         <p>You requested a password reset. Click the link below to reset your password:</p>
-        <a href="http://localhost:3000/reset-password/${token}">Reset Password</a>
+        <a href="http://19.168.100.2:3000/reset-password/${token}">Reset Password</a>
         <p>This link will expire in 1 hour.</p>
       `
     });
@@ -297,7 +303,7 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 router.post('/reset-password/:token', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const { token } = req.params;
     const { newPassword } = req.body;
 
@@ -334,9 +340,9 @@ router.post('/reset-password/:token', async (req, res) => {
 // ========================
 // IMAGE UPLOAD ROUTES
 // ========================
-console.log('📥 Received data:', req.body);
+
 router.put('/volunteers/update/:id', async (req, res) => {
-  try {
+  try { console.log('📥 Received data:', req.body);
     const { name, email, phone, skills, image } = req.body;
     const userId = req.params.id;
 

@@ -30,6 +30,16 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
       return; // Stop if the form is invalid
     }
 
+    if (_emailController.text.isEmpty) {
+      _showError('Email address is required.');
+      return;
+    } else if (!RegExp(
+      r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$",
+    ).hasMatch(_emailController.text)) {
+      _showError('Enter a valid email address.');
+      return;
+    }
+
     setState(() {
       _isLoading = true; // Show loading indicator
     });
@@ -288,4 +298,13 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
+}
+
+String? validateEmail(String email) {
+  if (email.isEmpty) {
+    return 'Email address is required.';
+  } else if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(email)) {
+    return 'Enter a valid email address.';
+  }
+  return null; // Return null if validation passes
 }
