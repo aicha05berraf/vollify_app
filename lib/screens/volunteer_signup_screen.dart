@@ -27,16 +27,6 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   void _handleVolunteerSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_emailController.text.isEmpty) {
-      _showError('Email address is required.');
-      return;
-    } else if (!RegExp(
-      r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$",
-    ).hasMatch(_emailController.text)) {
-      _showError('Enter a valid email address.');
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
@@ -85,16 +75,17 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
   void _showError(String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -133,7 +124,11 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
               const SizedBox(height: 20),
               _buildTextField(_phoneController, 'Phone Number', Icons.phone),
               const SizedBox(height: 20),
-              _buildTextField(_skillsController, 'Skills (comma separated)', Icons.build),
+              _buildTextField(
+                _skillsController,
+                'Skills (comma separated)',
+                Icons.build,
+              ),
               const SizedBox(height: 20),
               _buildTextField(_experienceController, 'Experience', Icons.work),
               const SizedBox(height: 20),
@@ -149,12 +144,13 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
                     backgroundColor: const Color(0xFF4E653D),
                   ),
                   onPressed: _isLoading ? null : _handleVolunteerSignup,
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'Sign Up',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                            'Sign Up',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                 ),
               ),
             ],
@@ -164,14 +160,19 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    IconData icon,
+  ) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-      ),
-      validator: (value) => value == null || value.isEmpty ? 'Please enter your $label' : null,
+      decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon)),
+      validator:
+          (value) =>
+              value == null || value.isEmpty
+                  ? 'Please enter your $label'
+                  : null,
     );
   }
 
@@ -185,7 +186,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) return 'Please enter a password';
-        if (value.length < 6) return 'Password must be at least 6 characters long';
+        if (value.length < 6)
+          return 'Password must be at least 6 characters long';
         return null;
       },
     );
@@ -200,7 +202,8 @@ class _VolunteerSignupScreenState extends State<VolunteerSignupScreen> {
         prefixIcon: Icon(Icons.lock),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return 'Please confirm your password';
+        if (value == null || value.isEmpty)
+          return 'Please confirm your password';
         if (value != _passwordController.text) return 'Passwords do not match';
         return null;
       },

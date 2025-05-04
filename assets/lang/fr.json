@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 {
   "settings": "Paramètres",
   "changeLanguage": "Changer la langue",
   "toggleDarkMode": "Activer le mode sombre",
   "logout": "Se déconnecter"
 }
+=======
+{
+  "settings": "Paramètres",
+  "changeLanguage": "Changer la langue",
+  "toggleDarkMode": "Activer le mode sombre",
+  "logout": "Se déconnecter"
+}
+>>>>>>> add3db9fad48a634024f3102d0ece3b4b94ba2d9

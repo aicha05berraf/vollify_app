@@ -101,15 +101,11 @@ class SettingsScreen extends StatelessWidget {
           // Logout
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: Text(
-              logoutText,
-              style: const TextStyle(color: Colors.red),
-            ),
+            title: Text(logoutText, style: const TextStyle(color: Colors.red)),
             onTap: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                '/userType',
-                (route) => false,
-              );
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/userType', (route) => false);
             },
           ),
         ],
@@ -132,7 +128,8 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null && args['editing'] == true) {
       setState(() {
         _isEditing = true;
@@ -146,14 +143,17 @@ class _VolunteerProfileScreenState extends State<VolunteerProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing
-            ? localize.translate('editProfile')
-            : localize.translate('profile')),
+        title: Text(
+          _isEditing
+              ? localize.translate('editProfile')
+              : localize.translate('profile'),
+        ),
       ),
       body: Center(
-        child: _isEditing
-            ? const Text('Editing Mode: Make changes to your profile.')
-            : const Text('View Mode: Your profile details.'),
+        child:
+            _isEditing
+                ? const Text('Editing Mode: Make changes to your profile.')
+                : const Text('View Mode: Your profile details.'),
       ),
     );
   }
@@ -207,7 +207,8 @@ class MyAppState extends State<MyApp> {
       routes: {
         '/': (context) => const SettingsScreen(),
         '/volunteerProfile': (context) => const VolunteerProfileScreen(),
-        '/userType': (context) => const Placeholder(), // Replace with your real widget
+        '/userType':
+            (context) => const Placeholder(), // Replace with your real widget
       },
     );
   }

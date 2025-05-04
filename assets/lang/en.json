@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 {
   "settings": "Settings",
   "changeLanguage": "Change Language",
   "toggleDarkMode": "Toggle Dark Mode",
   "logout": "Logout"
 }
+=======
+{
+  "settings": "Settings",
+  "changeLanguage": "Change Language",
+  "toggleDarkMode": "Toggle Dark Mode",
+  "logout": "Logout"
+}
+>>>>>>> add3db9fad48a634024f3102d0ece3b4b94ba2d9
