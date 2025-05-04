@@ -15,9 +15,9 @@ class VolunteerHomeScreen extends StatelessWidget {
         title: const Text('Volunteer Dashboard'),
         backgroundColor: AppColors.primaryDark,
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Set text color to white
-          fontSize: 20, // Optional: Adjust font size if needed
-          fontWeight: FontWeight.bold, // Optional: Adjust font weight if needed
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
         actions: [
           IconButton(
@@ -33,34 +33,59 @@ class VolunteerHomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildActionCard(
-              context,
-              AppStrings.volunteerOpportunities,
-              Icons.search,
-              () => _navigateToOpportunitySearch(context),
-              color: AppColors.primary,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 25, 68, 26), // أخضر من الأعلى
+              Colors.white, // منطقة بيضاء
+              Colors.white, // منتصف أبيض واسع
+              Color.fromARGB(255, 25, 68, 26), // أخضر من الأسفل
+            ],
+            stops: [
+              0.0,  // بداية الأخضر العلوي
+              0.2,  // بداية المنطقة البيضاء
+              0.8,  // نهاية المنطقة البيضاء
+              1.0,  // نهاية الأخضر السفلي
+            ],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildActionCard(
+                    context,
+                    AppStrings.volunteerOpportunities,
+                    Icons.search,
+                    () => _navigateToOpportunitySearch(context),
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildActionCard(
+                    context,
+                    AppStrings.volunteerAchievements,
+                    Icons.emoji_events,
+                    () => _navigateToAchievements(context),
+                    color: AppColors.accent,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildActionCard(
+                    context,
+                    AppStrings.volunteerNotifications,
+                    Icons.notifications,
+                    () => _navigateToNotifications(context),
+                    color: AppColors.primaryLight,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
-            _buildActionCard(
-              context,
-              AppStrings.volunteerAchievements,
-              Icons.emoji_events,
-              () => _navigateToAchievements(context),
-              color: AppColors.accent,
-            ),
-            const SizedBox(height: 20),
-            _buildActionCard(
-              context,
-              AppStrings.volunteerNotifications,
-              Icons.notifications,
-              () => _navigateToNotifications(context),
-              color: AppColors.primaryLight,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -74,13 +99,13 @@ class VolunteerHomeScreen extends StatelessWidget {
     required Color color,
   }) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Row(
             children: [
               Container(
@@ -90,7 +115,7 @@ class VolunteerHomeScreen extends StatelessWidget {
                   color: color.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: color),
+                child: Icon(icon, color: color, size: 28),
               ),
               const SizedBox(width: 16),
               Text(

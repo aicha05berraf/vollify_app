@@ -1,0 +1,2 @@
+how can i run this code ?
+which code? if the server.js u should access the backend folder in the terminal and write the command " node server.js " , if the whole application code you should run the commands " flutter clean " then " flutter pub get " then " flutter build apk " since you don't have the app already in your phone

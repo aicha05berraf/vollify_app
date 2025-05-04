@@ -10,6 +10,7 @@ import 'package:vollify_app/widgets/clickable_info_card.dart';
 import 'dart:convert';
 import 'package:vollify_app/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vollify_app/screens/settings_screen.dart';
 
 class OrganizationProfileScreen extends StatefulWidget {
   const OrganizationProfileScreen({Key? key}) : super(key: key);
@@ -302,15 +303,27 @@ class _OrganizationProfileScreenState extends State<OrganizationProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Organization Profile'),
+        title: const Text(
+          'Organization Profile',
+          style: TextStyle(color: Colors.white), // White title text
+        ),
+        backgroundColor: const Color(0xFF20331B), // Dark green background
+        centerTitle: false, // Align the title to the left
         actions: [
+          // Edit Icon
           IconButton(
-            icon: Icon(_isEditing ? Icons.check : Icons.edit),
+            icon: Icon(_isEditing ? Icons.check : Icons.edit, color: Colors.white),
             onPressed: _toggleEdit,
           ),
+          // Settings Icon
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _showLogoutDialog,
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -318,34 +331,6 @@ class _OrganizationProfileScreenState extends State<OrganizationProfileScreen> {
         padding: const EdgeInsets.all(24),
         child: _isEditing ? _buildEditMode() : _buildViewMode(),
       ),
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(), // Close dialog
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/userType', // Navigate to the user type screen
-                  (route) => false, // Remove all previous routes
-                );
-              },
-              child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
     );
   }
 
